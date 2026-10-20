@@ -1,0 +1,13 @@
+// --- SC-200 HUNT 2026-10-20 - Discovery Query ---
+// Finding: 41.24.136.73 = 2650 success, 431/hr peak, 17 apps
+AADNonInteractiveUserSignInLogs
+| where ResultType == 0
+| summarize HourlyCount=count(), Apps=dcount(AppDisplayName) by IPAddress, bin(TimeGenerated, 1h)
+| where HourlyCount > 100
+| sort by HourlyCount desc
+
+// --- FINAL Detection Rule Logic (Live in Sentinel) ---
+AADNonInteractiveUserSignInLogs
+| where ResultType == 0
+| summarize HourlyCount=count() by IPAddress, UserPrincipalName, bin(TimeGenerated, 1h)
+| where HourlyCount > 100
